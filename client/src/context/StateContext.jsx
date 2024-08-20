@@ -3,9 +3,13 @@ import { createContext, useContext, useReducer } from 'react';
 export const StateContext = createContext();
 
 export const StateProvider = ({ initialState, reducer, children }) => {
-  <StateContext.Provider value={useReducer(reducer, initialState)}>
-    {children}
-  </StateContext.Provider>;
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <StateContext.Provider value={[state, dispatch]}>
+      {children}
+    </StateContext.Provider>
+  );
 };
 
 export const useStateProvider = () => useContext(StateContext);
