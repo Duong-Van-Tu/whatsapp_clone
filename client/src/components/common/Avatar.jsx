@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import Image from "next/image";
-import { FaCamera } from "react-icons/fa";
-import ContextMenu from "./ContextMenu";
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { FaCamera } from 'react-icons/fa';
+import ContextMenu from './ContextMenu';
+import PhotoPicker from './PhotoPicker';
+import PhotoLibrary from './PhotoLibrary';
+import CapturePhoto from './CapturePhoto';
 
 function Avatar({ type, image, setImage }) {
   const [hover, setHover] = useState(false);
@@ -10,23 +13,34 @@ function Avatar({ type, image, setImage }) {
     x: 0,
     y: 0,
   });
+  const [grapPhoto, setGrapPhoto] = useState(false);
+  const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
+  const [showCapturePhoto, setShowCapturePhoto] = useState(false);
 
   const contextMenuOptions = [
     {
-      name: "Take Photo",
-      callback: () => {},
+      name: 'Take Photo',
+      callback: () => {
+        setShowCapturePhoto(true);
+      },
     },
     {
-      name: "Choose Form Library",
-      callback: () => {},
+      name: 'Choose Form Library',
+      callback: () => {
+        setShowPhotoLibrary(true);
+      },
     },
     {
-      name: "Upload Photo",
-      callback: () => {},
+      name: 'Upload Photo',
+      callback: () => {
+        setGrapPhoto(true);
+      },
     },
     {
-      name: "Remove Photo",
-      callback: () => {},
+      name: 'Remove Photo',
+      callback: () => {
+        setImage('/default_avatar.png');
+      },
     },
   ];
 
@@ -35,21 +49,47 @@ function Avatar({ type, image, setImage }) {
     setContextMenuCoordinates({ x: e.pageX, y: e.pageY });
     setIsContextMenuVisible(true);
   };
-  console.log({ isContextMenuVisible });
+
+  const PhotoPickerChange = async (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    const data = document.createElement('img');
+    reader.onload = function (event) {
+      data.src = event.target.result;
+      data.setAttribute('data-src', event.target.result);
+    };
+    reader.readAsDataURL(file);
+    setTimeout(() => {
+      setImage(data.src);
+    }, 100);
+  };
+
+  useEffect(() => {
+    if (grapPhoto) {
+      const data = document.getElementById('photo-picker');
+      data.click();
+      document.body.onfocus = (e) => {
+        setTimeout(() => {
+          setGrapPhoto(false);
+        }, 500);
+      };
+    }
+  }, [grapPhoto]);
+
   return (
     <>
       <div className="flex items-center justify-center">
-        {type === "sm" && (
+        {type === 'sm' && (
           <div className="relative h-10 w-10">
             <Image src={image} alt="avatar" className="rounded-full" fill />
           </div>
         )}
-        {type === "lg" && (
+        {type === 'lg' && (
           <div className="relative h-14 w-14">
             <Image src={image} alt="avatar" className="rounded-full" fill />
           </div>
         )}
-        {type === "xl" && (
+        {type === 'xl' && (
           <div
             className="relative cursor-pointer z-0"
             onMouseEnter={() => setHover(true)}
@@ -57,7 +97,7 @@ function Avatar({ type, image, setImage }) {
           >
             <div
               className={`z-10 bg-photopicker-overlay-background h-60 w-60 absolute top-0 left-0 flex items-center rounded-full justify-center flex-col text-center gap-2
-            ${hover ? "visible" : "hidden"}
+            ${hover ? 'visible' : 'hidden'}
           `}
               id="context-opener"
               onClick={(e) => showContextMenu(e)}
@@ -83,6 +123,16 @@ function Avatar({ type, image, setImage }) {
           coordinates={contextMenuCoordinates}
           contextMenu
           setContextMenu={setIsContextMenuVisible}
+        />
+      )}
+      {showCapturePhoto && (
+        <CapturePhoto setImage={setImage} hide={setShowCapturePhoto} />
+      )}
+      {grapPhoto && <PhotoPicker onChange={PhotoPickerChange} />}
+      {showPhotoLibrary && (
+        <PhotoLibrary
+          setImage={setImage}
+          hidePhotoLibrary={setShowPhotoLibrary}
         />
       )}
     </>
