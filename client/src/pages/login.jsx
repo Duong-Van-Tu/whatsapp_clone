@@ -1,16 +1,17 @@
-import Image from 'next/image';
-import React from 'react';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { firebaseAuth } from '@/utils/FirebaseConfig';
-import { FcGoogle } from 'react-icons/fc';
-import axios from 'axios';
-import { CHECK_USER_ROUTE } from '@/utils/ApiRoutes';
-import Router from 'next/router';
-import { useStateProvider } from '@/context/StateContext';
-import { reducerCases } from '@/context/constants';
+import Image from "next/image";
+import React from "react";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { firebaseAuth } from "@/utils/FirebaseConfig";
+import { FcGoogle } from "react-icons/fc";
+import axios from "axios";
+import { CHECK_USER_ROUTE } from "@/utils/ApiRoutes";
+import { useRouter } from "next/router";
+import { useStateProvider } from "@/context/StateContext";
+import { reducerCases } from "@/context/constants";
 
 function login() {
   const [{}, dispatch] = useStateProvider();
+  const route = useRouter();
 
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -28,10 +29,10 @@ function login() {
               name,
               email,
               profileImage,
-              status: '',
+              status: "",
             },
           });
-          Router.push('/onboarding');
+          route.push("/onboarding");
         }
       }
     } catch (error) {
